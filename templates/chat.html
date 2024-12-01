@@ -1,0 +1,364 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="chat-container">
+    <div class="row">
+        <div class="col-md-3 sidebar">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h4>Groups</h4>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('create_group') }}" method="POST" class="mb-3">
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="group_name" placeholder="New group name" required>
+                            <button class="btn btn-primary" type="submit">Create</button>
+                        </div>
+                    </form>
+                    <div class="groups-list">
+                        {% for group in groups %}
+                        <a href="{{ url_for('chat', group_id=group.id) }}" 
+                           class="list-group-item list-group-item-action {% if chat_type == 'group' and chat_target.id == group.id %}active{% endif %}">
+                            {{ group.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h4>Friends</h4>
+                </div>
+                <div class="card-body">
+                    <div class="friends-list">
+                        {% for friend in friends %}
+                        <div class="friend-item">
+                            <a href="{{ url_for('chat', friend_id=friend.id) }}" 
+                               class="list-group-item list-group-item-action {% if chat_type == 'private' and chat_target.id == friend.id %}active{% endif %}">
+                                {{ friend.username }}
+                            </a>
+                            <div class="friend-actions">
+                                <a href="{{ url_for('unfriend', friend_id=friend.id) }}" 
+                                   class="btn btn-sm btn-outline-danger"
+                                   onclick="return confirm('Are you sure you want to unfriend {{ friend.username }}?')">
+                                    Unfriend
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            {% if chat_type == 'group' %}
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h4>Group Members</h4>
+                </div>
+                <div class="card-body">
+                    <div class="members-list">
+                        {% for member in group_members %}
+                        <div class="member-item">
+                            {{ member.username }}
+                            {% if member.id != current_user.id and member not in friends %}
+                            <a href="{{ url_for('request_friend_from_group', group_id=chat_target.id, user_id=member.id) }}" 
+                               class="btn btn-sm btn-outline-primary float-end">
+                                Add Friend
+                            </a>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    {% if potential_members %}
+                    <hr>
+                    <h5>Add to Group</h5>
+                    <form action="{{ url_for('add_to_group', group_id=chat_target.id) }}" method="POST">
+                        <div class="input-group">
+                            <select name="friend_id" class="form-select" required>
+                                <option value="">Select friend</option>
+                                {% for friend in potential_members %}
+                                <option value="{{ friend.id }}">{{ friend.username }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-primary">Add</button>
+                        </div>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        {% if chat_type == 'private' %}
+                            <h3>Chat with {{ chat_target.username }}</h3>
+                        {% elif chat_type == 'group' %}
+                            <h3>{{ chat_target.name }}</h3>
+                        {% else %}
+                            <h3>Select a chat</h3>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <a href="{{ url_for('friends') }}" class="btn btn-outline-primary me-2 d-none d-md-inline-block">Friends</a>
+                        <a href="{{ url_for('logout') }}" class="btn btn-outline-danger">Logout</a>
+                    </div>
+                </div>
+                
+                {% if chat_type %}
+                <div class="card-body">
+                    <div class="chat-messages" id="messages">
+                        {% for message in messages|reverse %}
+                        <div class="message {% if message.user_id == current_user.id %}message-own{% endif %}">
+                            <strong>{{ message.username }}</strong>
+                            <small class="text-muted">{{ message.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+                            <p>{{ message.content }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    {% if uploads %}
+                    <div class="uploads-section mt-3">
+                        <h5>Shared Files</h5>
+                        <div class="list-group">
+                            {% for upload in uploads %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="file-item-info">
+                                        <h6 class="file-item-name">
+                                            <a href="{{ url_for('download_file', filename=upload.filename) }}">
+                                                {{ upload.original_filename }}
+                                            </a>
+                                        </h6>
+                                        <small class="file-item-meta">
+                                            Shared by {{ upload.username }} on {{ upload.timestamp.strftime('%Y-%m-%d %H:%M') }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="card-footer message-input-container">
+                    <form method="POST" action="{{ url_for('send_message') }}" class="mb-2">
+                        <input type="hidden" name="chat_type" value="{{ chat_type }}">
+                        {% if chat_type == 'private' %}
+                            <input type="hidden" name="recipient_id" value="{{ chat_target.id }}">
+                        {% else %}
+                            <input type="hidden" name="group_id" value="{{ chat_target.id }}">
+                        {% endif %}
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="message" placeholder="Type your message..." required>
+                            <button class="btn btn-primary" type="submit">Send</button>
+                        </div>
+                    </form>
+
+                    <form id="uploadForm" action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="chat_type" value="{{ chat_type }}">
+                        {% if chat_type == 'private' %}
+                            <input type="hidden" name="recipient_id" value="{{ chat_target.id }}">
+                        {% else %}
+                            <input type="hidden" name="group_id" value="{{ chat_target.id }}">
+                        {% endif %}
+                        
+                        <div id="dropZone" class="file-upload-zone">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Drag & drop files here or click to select</p>
+                            <input type="file" id="file" name="file" class="d-none" required>
+                        </div>
+                        
+                        <div class="upload-progress progress">
+                            <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </form>
+                </div>
+                {% else %}
+                <div class="card-body text-center">
+                    <p class="text-muted">Select a friend or group to start chatting</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="sidebar-overlay"></div>
+<button class="mobile-nav-toggle">
+    <i class="fas fa-bars"></i>
+</button>
+
+<div class="toast-container"></div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Pass current user ID to notifications.js
+    const currentUserId = {{ current_user.id }};
+</script>
+<script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
+<script>
+    // Auto-scroll to bottom of messages
+    const messages = document.getElementById('messages');
+    if (messages) {
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+    // File upload handling
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('file');
+    const uploadForm = document.getElementById('uploadForm');
+    const progressBar = document.querySelector('.progress-bar');
+    const progressContainer = document.querySelector('.upload-progress');
+
+    if (dropZone && fileInput) {
+        // Handle drag and drop
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        dropZone.addEventListener('drop', handleDrop, false);
+        dropZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileSelect);
+    }
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    function highlight(e) {
+        dropZone.classList.add('drag-over');
+    }
+
+    function unhighlight(e) {
+        dropZone.classList.remove('drag-over');
+    }
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFiles(files);
+    }
+
+    function handleFileSelect(e) {
+        const files = e.target.files;
+        handleFiles(files);
+    }
+
+    function handleFiles(files) {
+        if (files.length > 0) {
+            const file = files[0];
+            if (file.size > 100 * 1024 * 1024) { // 100MB
+                showToast('Error: File size exceeds 100MB limit', 'error');
+                return;
+            }
+            uploadFile(file);
+        }
+    }
+
+    function uploadFile(file) {
+        const xhr = new XMLHttpRequest();
+        const formData = new FormData(uploadForm);
+        formData.set('file', file);
+
+        xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+                const percentComplete = (e.loaded / e.total) * 100;
+                progressBar.style.width = percentComplete + '%';
+                progressContainer.classList.add('active');
+            }
+        });
+
+        xhr.addEventListener('load', () => {
+            if (xhr.status === 200) {
+                showToast('File uploaded successfully', 'success');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                showToast('Upload failed', 'error');
+            }
+            progressContainer.classList.remove('active');
+        });
+
+        xhr.addEventListener('error', () => {
+            showToast('Upload failed', 'error');
+            progressContainer.classList.remove('active');
+        });
+
+        xhr.open('POST', uploadForm.action, true);
+        xhr.send(formData);
+    }
+
+    // Mobile navigation
+    const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
+    const sidebar = document.querySelector('.sidebar');
+    const sidebarOverlay = document.querySelector('.sidebar-overlay');
+
+    if (mobileNavToggle && sidebar && sidebarOverlay) {
+        mobileNavToggle.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', toggleSidebar);
+    }
+
+    function toggleSidebar() {
+        sidebar.classList.toggle('active');
+        sidebarOverlay.classList.toggle('active');
+    }
+
+    // Send message with AJAX
+    const messageForm = document.querySelector('form[action="{{ url_for("send_message") }}"]');
+    if (messageForm) {
+        messageForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(messageForm);
+            
+            try {
+                const response = await fetch(messageForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                const data = await response.json();
+                if (data.status === 'success') {
+                    // Clear input
+                    messageForm.querySelector('input[name="message"]').value = '';
+                    
+                    // Add message to chat
+                    const messageHtml = `
+                        <div class="message message-own">
+                            <strong>${data.message.sender_name}</strong>
+                            <small class="text-muted">${new Date(data.message.timestamp).toLocaleString()}</small>
+                            <p>${data.message.content}</p>
+                        </div>
+                    `;
+                    messages.insertAdjacentHTML('beforeend', messageHtml);
+                    messages.scrollTop = messages.scrollHeight;
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+                showToast('Error sending message', 'error');
+            }
+        });
+    }
+</script>
+{% endblock %}

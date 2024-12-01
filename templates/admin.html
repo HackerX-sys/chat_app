@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4">Admin Panel</h1>
+
+    <!-- Messages Section -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2 class="h5 mb-0">Chat Messages</h2>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Type</th>
+                            <th>Message</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for message in messages %}
+                        <tr>
+                            <td>{{ message.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <td>{{ message.username }}</td>
+                            <td>
+                                {% if message.chat_type == 'private' %}
+                                    {% for user in users if user.id == message.recipient_id %}
+                                        {{ user.username }}
+                                    {% endfor %}
+                                {% else %}
+                                    Group: {{ message.group.name if message.group else 'Unknown' }}
+                                {% endif %}
+                            </td>
+                            <td>{{ message.chat_type }}</td>
+                            <td>{{ message.content }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Files Section -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="h5 mb-0">Uploaded Files</h2>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Filename</th>
+                            <th>Size</th>
+                            <th>Upload Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for file in uploaded_files %}
+                        <tr>
+                            <td>{{ file.name }}</td>
+                            <td>{{ (file.size / 1024)|round(1) }} KB</td>
+                            <td>{{ file.date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <td>
+                                <a href="{{ url_for('admin_download_file', filename=file.name) }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-download"></i> Download
+                                </a>
+                                <a href="{{ url_for('admin_delete_file', filename=file.name) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this file?')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add some custom styles -->
+<style>
+    .table-responsive {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    
+    .btn-sm {
+        margin-right: 0.25rem;
+    }
+    
+    .table td {
+        vertical-align: middle;
+    }
+</style>
+{% endblock %}
