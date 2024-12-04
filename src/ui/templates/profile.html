@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
+    <div class="md:flex">
+        <!-- Profile Sidebar -->
+        <div class="md:w-1/3 bg-indigo-50 p-6">
+            <div class="text-center">
+                <div class="relative inline-block">
+                    <img src="{{ current_user.avatar_url or url_for('static', filename='img/default-avatar.png') }}"
+                         alt="Profile Picture"
+                         class="w-32 h-32 rounded-full border-4 border-white shadow-lg">
+                    <button onclick="document.getElementById('avatar-upload').click()"
+                            class="absolute bottom-0 right-0 bg-indigo-600 text-white rounded-full p-2 hover:bg-indigo-700">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                    <input type="file" id="avatar-upload" class="hidden" accept="image/*">
+                </div>
+                <h2 class="mt-4 text-2xl font-bold">{{ current_user.username }}</h2>
+                <p class="text-gray-600">Member since {{ current_user.created_at.strftime('%B %Y') }}</p>
+            </div>
+
+            <div class="mt-6 space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600">Status</span>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
+                                {{ 'bg-green-100 text-green-800' if current_user.status == 'online' else 'bg-gray-100 text-gray-800' }}">
+                        <span class="w-2 h-2 rounded-full {{ 'bg-green-400' if current_user.status == 'online' else 'bg-gray-400' }} mr-2"></span>
+                        {{ current_user.status.capitalize() }}
+                    </span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600">Total Friends</span>
+                    <span class="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-medium">
+                        {{ current_user.friends|length }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Content -->
+        <div class="md:w-2/3 p-6">
+            <div class="space-y-6">
+                <!-- Profile Settings -->
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900">Profile Settings</h3>
+                    <form class="mt-4 space-y-4" method="POST" action="{{ url_for('ui.update_profile') }}">
+                        <div>
+                            <label for="bio" class="block text-sm font-medium text-gray-700">Bio</label>
+                            <textarea id="bio" name="bio" rows="3"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">{{ current_user.bio or '' }}</textarea>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Notification Settings -->
+                <div class="pt-6 border-t border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Notification Settings</h3>
+                    <div class="mt-4 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <label class="text-sm font-medium text-gray-700">Sound Notifications</label>
+                                <p class="text-sm text-gray-500">Play sound when receiving messages</p>
+                            </div>
+                            <button type="button" id="soundToggle"
+                                    class="relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+                                    {{ 'bg-indigo-600' if current_user.notification_sound else 'bg-gray-200' }}"
+                                    role="switch">
+                                <span class="sr-only">Toggle sound notifications</span>
+                                <span class="translate-x-0 pointer-events-none relative inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200
+                                        {{ 'translate-x-5' if current_user.notification_sound else '' }}">
+                                </span>
+                            </button>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <label class="text-sm font-medium text-gray-700">Desktop Notifications</label>
+                                <p class="text-sm text-gray-500">Show desktop notifications</p>
+                            </div>
+                            <button type="button" id="desktopNotifToggle"
+                                    class="relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+                                    {{ 'bg-indigo-600' if current_user.desktop_notifications else 'bg-gray-200' }}"
+                                    role="switch">
+                                <span class="sr-only">Toggle desktop notifications</span>
+                                <span class="translate-x-0 pointer-events-none relative inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200
+                                        {{ 'translate-x-5' if current_user.desktop_notifications else '' }}">
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Settings -->
+                <div class="pt-6 border-t border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Security Settings</h3>
+                    <form class="mt-4" method="POST" action="{{ url_for('ui.change_password') }}">
+                        <div class="space-y-4">
+                            <div>
+                                <label for="current_password" class="block text-sm font-medium text-gray-700">Current Password</label>
+                                <input type="password" name="current_password" id="current_password" required
+                                       class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="new_password" class="block text-sm font-medium text-gray-700">New Password</label>
+                                <input type="password" name="new_password" id="new_password" required
+                                       class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="confirm_new_password" class="block text-sm font-medium text-gray-700">Confirm New Password</label>
+                                <input type="password" name="confirm_new_password" id="confirm_new_password" required
+                                       class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <button type="submit"
+                                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    Change Password
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,77 @@
+<!-- Create Group Modal -->
+<div id="createGroupModal" class="fixed z-10 inset-0 overflow-y-auto hidden">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+            <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+        </div>
+
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <form id="createGroupForm">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                                Create New Group
+                            </h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="groupName" class="block text-sm font-medium text-gray-700">
+                                        Group Name
+                                    </label>
+                                    <input type="text" name="groupName" id="groupName" required
+                                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                </div>
+                                <div>
+                                    <label for="groupDescription" class="block text-sm font-medium text-gray-700">
+                                        Description
+                                    </label>
+                                    <textarea id="groupDescription" name="groupDescription" rows="3"
+                                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">
+                                        Group Avatar
+                                    </label>
+                                    <div class="mt-1 flex items-center">
+                                        <span class="inline-block h-12 w-12 rounded-full overflow-hidden bg-gray-100">
+                                            <img id="groupAvatarPreview" src="{{ url_for('static', filename='img/default-group.png') }}" 
+                                                 alt="Group avatar preview">
+                                        </span>
+                                        <button type="button" onclick="document.getElementById('groupAvatar').click()"
+                                                class="ml-5 bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                            Change
+                                        </button>
+                                        <input type="file" id="groupAvatar" name="groupAvatar" accept="image/*" class="hidden">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">
+                                        Add Members
+                                    </label>
+                                    <div class="mt-1">
+                                        <select id="groupMembers" name="groupMembers" multiple
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                            {% for user in users %}
+                                                <option value="{{ user.id }}">{{ user.username }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="submit"
+                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Create Group
+                    </button>
+                    <button type="button" onclick="hideCreateGroupModal()"
+                            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

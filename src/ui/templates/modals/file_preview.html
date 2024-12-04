@@ -1,0 +1,63 @@
+<!-- File Preview Modal -->
+<div id="filePreviewModal" class="fixed z-10 inset-0 overflow-y-auto hidden">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+            <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+        </div>
+
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div class="w-full">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                            File Preview
+                        </h3>
+                        <div id="filePreviewContent" class="space-y-4">
+                            <!-- Image Preview -->
+                            <div id="imagePreview" class="hidden">
+                                <img src="" alt="Preview" class="max-w-full h-auto rounded-lg">
+                            </div>
+
+                            <!-- Video Preview -->
+                            <div id="videoPreview" class="hidden">
+                                <video controls class="w-full rounded-lg">
+                                    <source src="" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+
+                            <!-- Audio Preview -->
+                            <div id="audioPreview" class="hidden">
+                                <audio controls class="w-full">
+                                    <source src="" type="audio/mpeg">
+                                    Your browser does not support the audio tag.
+                                </audio>
+                            </div>
+
+                            <!-- Document Preview -->
+                            <div id="documentPreview" class="hidden">
+                                <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                                    <i class="fas fa-file-alt text-4xl text-gray-400"></i>
+                                    <div class="ml-4">
+                                        <p id="documentName" class="text-sm font-medium text-gray-900"></p>
+                                        <p id="documentSize" class="text-sm text-gray-500"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" id="sendFileBtn"
+                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
+                    Send
+                </button>
+                <button type="button" onclick="hideFilePreviewModal()"
+                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

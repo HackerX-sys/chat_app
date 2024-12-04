@@ -1,8 +1,12 @@
 Flask==2.3.3
 Flask-SQLAlchemy==3.1.1
 Flask-Login==0.6.2
-Flask-Limiter==3.5.0
+Flask-SocketIO==5.3.6
+python-socketio==5.9.0
+python-engineio==4.7.1
 Werkzeug==2.3.7
+python-magic==0.4.27
+googletrans==3.1.0a0
+Pillow==10.0.1
+requests==2.31.0
 python-dotenv==1.0.0
-gunicorn==20.1.0
-deta==1.2.0

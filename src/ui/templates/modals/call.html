@@ -1,0 +1,83 @@
+<!-- Call Modal -->
+<div id="callModal" class="fixed z-10 inset-0 overflow-y-auto hidden">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+            <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+        </div>
+
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <!-- Incoming Call -->
+            <div id="incomingCall" class="hidden">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <i class="fas fa-phone-alt text-indigo-600"></i>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                                Incoming Call
+                            </h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500">
+                                    <span id="callerName"></span> is calling...
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" onclick="acceptCall()"
+                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        <i class="fas fa-phone mr-2"></i> Accept
+                    </button>
+                    <button type="button" onclick="rejectCall()"
+                            class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        <i class="fas fa-phone-slash mr-2"></i> Reject
+                    </button>
+                </div>
+            </div>
+
+            <!-- Active Call -->
+            <div id="activeCall" class="hidden">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                    <div class="text-center">
+                        <div class="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-indigo-100 mb-4">
+                            <img id="calleeAvatar" src="" alt=""
+                                 class="h-20 w-20 rounded-full">
+                        </div>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-2">
+                            <span id="calleeName"></span>
+                        </h3>
+                        <p id="callDuration" class="text-sm text-gray-500">
+                            00:00
+                        </p>
+                        
+                        <!-- Video Container -->
+                        <div id="videoContainer" class="mt-4 hidden">
+                            <div class="relative">
+                                <video id="remoteVideo" class="w-full rounded-lg" autoplay></video>
+                                <video id="localVideo" class="absolute bottom-4 right-4 w-1/4 rounded-lg" autoplay muted></video>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-4">
+                    <div class="flex justify-center space-x-4">
+                        <button type="button" onclick="toggleMute()"
+                                class="inline-flex items-center justify-center w-12 h-12 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 bg-gray-100 hover:bg-gray-200">
+                            <i id="muteIcon" class="fas fa-microphone"></i>
+                        </button>
+                        <button type="button" onclick="toggleVideo()"
+                                class="inline-flex items-center justify-center w-12 h-12 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 bg-gray-100 hover:bg-gray-200">
+                            <i id="videoIcon" class="fas fa-video"></i>
+                        </button>
+                        <button type="button" onclick="endCall()"
+                                class="inline-flex items-center justify-center w-12 h-12 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 bg-red-600 hover:bg-red-700 text-white">
+                            <i class="fas fa-phone-slash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
